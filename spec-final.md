@@ -1,27 +1,27 @@
 # SPEC — AI Product Hackathon
 
-**Nhóm:** (Điền tên nhóm của bạn)
-**Track:** ☐ VinFast · ☑ Vinmec · ☐ VinUni-VinSchool · ☐ XanhSM · ☐ Open
-**Problem statement (1 câu):** Bệnh nhân khi có triệu chứng đau ốm thường lúng túng không biết phải khám ở chuyên khoa nào, dẫn đến việc đặt nhầm khoa hoặc phải gọi điện hỏi tổng đài gây tốn thời gian chờ đợi; AI sẽ đóng vai trò "điều dưỡng sơ yếu", trao đổi ngắn gọn để phân tích triệu chứng và tự động gợi ý đúng chuyên khoa, rút ngắn luồng booking (đặt lịch).
+- **Nhóm:** 08
+- **Track:** ☐ VinFast · ☑ Vinmec · ☐ VinUni-VinSchool · ☐ XanhSM · ☐ Open
+- **Problem statement (1 câu):** Bệnh nhân khi có triệu chứng đau ốm thường lúng túng không biết khám chuyên khoa nào, dẫn đến đặt nhầm khoa hoặc phải gọi tổng đài gây quá tải; AI sẽ đóng vai trò "Điều dưỡng sơ yếu", thu thập thông tin nhân khẩu học và phân tích triệu chứng ngữ nghĩa tự nhiên để gợi ý chuyên khoa, kết hợp lớp kiểm duyệt nhanh (Thin Human-Triage) để rút ngắn luồng booking mà vẫn đảm bảo an toàn y khoa tuyệt đối.
 
 ---
 
 ## 1. AI Product Canvas
 
-|   | Value | Trust | Feasibility |
-|---|-------|-------|-------------|
-| **Câu hỏi** | User nào? Pain gì? AI giải gì? | Khi AI sai thì sao? User sửa bằng cách nào? | Cost/latency bao nhiêu? Risk chính? |
-| **Trả lời** | Bệnh nhân cần đặt lịch khám nhưng ngợp trước hàng chục chuyên khoa. AI dựa vào text tự do để match triệu chứng ra chuyên khoa, xua tan sự băn khoăn. | AI gợi ý sai khoa -> User thấy không hợp lý hoặc nhận kết quả "Không chắc chắn", bèn ấn nút "Gặp lễ tân/Tổng đài". | Latency < 2s/lượt chat, cost < $0.01. Risk chính: Bỏ sót các tín hiệu bệnh lý nguy kịch (Red Flags) cần cấp cứu gấp. |
+|             | Value                                                                                                                      | Trust                                                                                                                      | Feasibility                                                                                                                         |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **Câu hỏi** | User nào? Pain gì? AI giải gì?                                                                                             | Khi AI sai thì sao? User sửa bằng cách nào?                                                                                | Cost/latency bao nhiêu? Risk chính?                                                                                                 |
+| **Trả lời** | Bệnh nhân cần đặt lịch nhưng ngợp trước hàng chục chuyên khoa. AI phân tích text tự do để map triệu chứng ra khoa phù hợp. | AI có lớp bọc lót: Nếu độ tự tin < 85%, đẩy qua luồng "Chờ điều dưỡng duyệt nhanh". Sai tại viện: Bác sĩ điều chuyển khoa. | Dùng model cloud tốc độ cao kết hợp On-premise. Latency < 2s/turn. Risk chính: Bỏ sót Red Flags và rủi ro rò rỉ dữ liệu y tế (PHI). |
 
 **Automation hay augmentation?** ☑ Augmentation (Tăng cường)
-Justify: AI ở đây là bước đệm sơ khảo (Augmentation) để định hướng và giảm tải cho tổng đài viên. AI đưa ra Top 3 dự đoán khoa khám, nhưng quyền click chọn khoa nào để thanh toán (hoặc quyền yêu cầu gọi Human Lễ tân) hoàn toàn nằm trong tay người dùng.
+Justify: AI là bước đệm sơ khảo (Augmentation). Với các ca AI tự tin cao (>85%), quyền chốt lịch vẫn thuộc về user. Với các ca trung bình (60-85%), AI tạo ra một lớp "Thin Human-Triage", tóm tắt sẵn bệnh án và đề xuất khoa để Điều dưỡng thật ấn "Duyệt" (SLA 15-30s/ca) trước khi confirm cho bệnh nhân. Con số này đảm bảo điều dưỡng có đủ thời gian nhận thức ca bệnh, tránh tình trạng "duyệt mù" (rubber-stamping), đồng thời vẫn tối ưu gấp 6-12 lần so với gọi telesale (3 phút).
 
 **Learning signal:**
 
-1. User correction đi vào đâu? Khi user từ chối gợi ý của AI và yêu cầu tiếp tân hỗ trợ thủ công, bản Text Log triệu chứng và Khoa thực tế được book sẽ được gom vào DB. Hoặc khi bác sĩ khám thấy sai chuyên môn, ấn chuyển khoa trên hệ thống.
-2. Product thu signal gì để biết tốt lên hay tệ đi? Tỷ lệ User hoàn tất book lịch tĩnh mà không cần nhảy sang gọi tổng đài; Tỷ lệ bác sĩ dùng tính năng "Điều chuyển nhầm khoa".
-3. Data thuộc loại nào? ☐ User-specific · ☑ Domain-specific · ☐ Real-time · ☑ Human-judgment · ☐ Khác
-   Có marginal value không? Có. Các thuật ngữ mô tả đau ốm dân dã ("đau trúng gió", "nhức mỏi ráng") ban đầu AI có thể không map chuẩn. Qua dữ liệu Correction của các ca thực tế, AI của Vinmec sẽ am hiểu từ ngữ bệnh trạng của người Việt hơn hẳn mô hình gốc.
+1. Correction đi vào đâu? (1) Khi Điều dưỡng sửa gợi ý của AI ở luồng duyệt nhanh; (2) Khi bác sĩ khám thực tế ấn "Điều chuyển nhầm khoa". Data gồm `(Triệu chứng gốc -> Khoa đúng)` được nạp vào DB.
+2. Product thu signal gì? Tỷ lệ tự book thành công tự động; Tỷ lệ Điều dưỡng phải sửa lại khoa; Tỷ lệ Bác sĩ điều chuyển nhầm khoa tại viện.
+3. Data thuộc loại nào? ☐ User-specific · ☑ Domain-specific · ☐ Real-time · ☑ Human-judgment
+   Có marginal value không? Có. Thông qua vòng lặp Human-in-the-loop, AI sẽ học được các thuật ngữ bệnh lý dân gian, tiếng lóng, sai chính tả của người Việt, tạo ra "con hào kinh tế" (Moat) dữ liệu độc quyền cho Vinmec.
 
 ---
 
@@ -29,66 +29,69 @@ Justify: AI ở đây là bước đệm sơ khảo (Augmentation) để định
 
 ### Feature: Chatbot Triage (Sàng lọc triệu chứng và gợi ý chuyên khoa)
 
-**Trigger:** User mở ứng dụng Vinmec, vào mục "Đặt lịch khám", nhập text: *“Tôi bị đau quặn bụng dưới bên phải từ tối qua.”*
+**Trigger:** User mở ứng dụng Vinmec, vào mục "Đặt lịch khám", nhập text: _“Tôi bị đau quặn bụng dưới bên phải từ tối qua, kèm ớn lạnh.”_
 
-| Path | Câu hỏi thiết kế | Mô tả |
-|------|-------------------|-------|
-| Happy — AI đúng, tự tin | User thấy gì? Flow kết thúc ra sao? | AI hỏi thêm: "Bạn có kèm sốt không?". User: "Có". AI trả kết quả: "Mức độ phù hợp 95%: Khám Ngoại Tiêu hoá" và hiện danh sách Bác sĩ để User click đặt lịch. |
-| Low-confidence — AI không chắc | System báo "không chắc" bằng cách nào? User quyết thế nào? | Triệu chứng mập mờ ("Tôi bị mệt"). AI cố hỏi 1 câu nhưng vẫn không gỡ được. AI báo: "Triệu chứng khá chung. Bạn muốn chọn Khám Tổng Quát hay gặp [Lễ tân] để được tư vấn thêm?" |
-| Failure — AI sai | User biết AI sai bằng cách nào? Recover ra sao? | AI khuyên khám Da liễu do có từ khóa "nóng gan", nhưng bản chất bệnh nhân rối loạn tiêu hóa. Tại phòng khám, bác sĩ dùng hệ thống ấn check "Nhầm khoa", bệnh nhân được điều chuyển qua Nội tiêu hóa không mất phí. |
-| Correction — user sửa | User sửa bằng cách nào? Data đó đi vào đâu? | Nút "Nhầm khoa" của bác sĩ kích hoạt lưu log. Cặp dữ liệu `(Triệu chứng ban đầu -> Khoa đúng)` được nạp vào DB để tối ưu hóa bộ system prompt cho cycle tới. |
+| Path                                 | Câu hỏi thiết kế                        | Mô tả                                                                                                                                                                                                                           |
+| ------------------------------------ | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Happy (AI tự tin > 85%)              | User thấy gì? Flow kết thúc ra sao?     | AI ngầm trích xuất Tuổi/Giới tính từ profile và hỏi thêm 1 câu chốt. AI trả kết quả: "95% phù hợp Khám Ngoại Tiêu hoá" kèm Disclaimer: _"Đây là trợ lý gợi ý chuyên khoa, không thay thế chẩn đoán y khoa..."_                  |
+| Thin Human-Triage (AI tự tin 60-85%) | System làm gì? User trải nghiệm ra sao? | Triệu chứng mập mờ. AI báo: "Hệ thống đang tìm chuyên khoa phù hợp nhất...". Ở backend, AI đẩy tóm tắt bệnh án cho Điều dưỡng trực online. Điều dưỡng đọc nhanh đánh giá (15-30s), ấn "Duyệt: Nội Tim Mạch". User nhận kết quả. |
+| Failure (Bác sĩ đổi khoa)            | Recover ra sao để tránh ức chế?         | Nếu AI/Điều dưỡng phân loại nhầm. Bác sĩ dùng hệ thống ấn "Nhầm khoa", bệnh nhân được CSKH dẫn trực tiếp qua khoa mới (Fast-track), ưu tiên khám ngay không xếp hàng lại.                                                       |
+| Correction (Học hỏi)                 | Data đi vào đâu?                        | Nút "Sửa khoa" của Điều dưỡng online và "Nhầm khoa" của Bác sĩ kích hoạt lưu log. Cặp dữ liệu này được đưa thẳng vào Vector DB để làm giàu bộ nhớ ngữ nghĩa (Semantic Memory).                                                  |
 
 ---
 
 ## 3. Eval metrics + threshold
 
 **Optimize precision hay recall?** ☐ Precision · ☑ Recall
-Tại sao? Trong y tế, Recall là chỉ số sống còn đối với các loại bệnh nguy hiểm (Quy tắc Red Flag). Thà AI nhạy cảm quá mức, thấy "đau ở lồng ngực" là gợi ý Cấp Cứu ngay (mặc dù có thể đó chỉ là do trào ngược dạ dày bẩm sinh - False positive), còn hơn bỏ sót (False negative) coi đó là bệnh tiêu hóa thông thường, làm lỡ thời gian vàng cấp cứu nhồi máu cơ tim.
+Tại sao? Trong y tế, Recall là chỉ số sống còn đối với các loại bệnh nguy hiểm (Red Flags). Chấp nhận False Positive (thà AI báo động nhầm và khuyên đi Cấp Cứu) để đảm bảo tuyệt đối không bỏ lọt False Negative (nhầm nhồi máu cơ tim thành đau dạ dày thông thường).
 
-| Metric | Threshold | Red flag (dừng khi) |
-|--------|-----------|---------------------|
-| Recall đối với nhóm Keyword Khẩn Cấp (Red Flags) | = 100% | Có bất kỳ 1 ca cấp cứu nào bị AI phân loại là khám thông thường (Rủi ro tính mạng). |
-| Tỉ lệ khách tự book lịch qua Chatbot thành công (Self-serve) | > 50% | Rơi xuống dưới 20% (AI đang làm rườm rà hệ thống hơn lúc chưa có AI). |
-| Tỉ lệ phản hồi "Nhầm khoa" từ Bác Sĩ khám thực tế | < 3% | Vượt > 5% trong 1 tuần (Gây ức chế vận hành của cơ sở y tế). |
+| Metric                                        | Threshold                    | Red flag (dừng khi)                                                                           |
+| --------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------- |
+| Recall đối với nhóm Cấp Cứu (Red Flags)       | > 99.5% (Tiệm cận tuyệt đối) | Có bất kỳ 1 ca cấp cứu nào bị AI phân loại là khám thông thường (Rủi ro pháp lý & tính mạng). |
+| Tỉ lệ khách hoàn tất book lịch qua luồng Bot  | > 60%                        | Tỷ lệ Drop-off (thoát ngang lúc chat) > 40% trong 2 tuần liên tiếp.                           |
+| Tỉ lệ phản hồi "Nhầm khoa" từ Bác Sĩ tại viện | < 2%                         | Tỷ lệ báo "Nhầm khoa" vượt > 10% trong 1 tuần (Gây vỡ trận vận hành lâm sàng).                |
 
 ---
 
-## 4. Top 3 failure modes
+## 4. Top 4 failure modes
 
-| # | Trigger | Hậu quả | Mitigation |
-|---|---------|---------|------------|
-| 1 | Bệnh nhân dùng từ lóng vùng miền, sai chính tả nặng, diễn đạt lủng củng | AI không hiểu, đoán bừa hoặc vòng lặp hỏi lại người bệnh liên hồi | Đặt biến đếm (counter): Nếu AI gặp rào cản và phải hỏi lại khách quá 2 lần -> Ép hiển thị popup Nút Gọi Tổng Đài/Lễ Tân để giải thoát người dùng. |
-| 2 | Prompt Injection hoặc hỏi lan man ngoài lề | Bệnh nhân hỏi các vấn đề sức khỏe sinh lý tế nhị nhưng không muốn đi khám, bắt AI tư vấn mẹo dân gian. AI bịa ra kiến thức y khoa bậy lố lăng. | System Prompt dùng Railguard nghiêm ngặt. Bot có persona rõ là Lễ Tân phân khoa, bị cấm tuyệt đối vai trò Bác Sĩ chẩn bệnh online. Từ chối trả lời mọi mưu đồ mớm bệnh. |
-| 3 | Bệnh nhân giấu bệnh, mô tả thiên lệch để giấu mức độ | AI đánh giá mức độ nhé, khuyên khám khoa thường, bỏ qua rủi ro nghiêm trọng gián tiếp | Gắn nhãn Disclaimer rõ ràng trước và sau khi chat: "Các tư vấn chỉ mang tính tham khảo sơ bộ. Nếu có bất kỳ cơn đau/khó thở dữ dội nào, xin vui lòng tới thẳng phòng Cấp cứu". |
+| #   | Trigger                                                      | Hậu quả                                                                                                           | Mitigation                                                                                                                                                                                                  |
+| --- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Rò rỉ dữ liệu y tế (PHI) qua API Cloud bên thứ 3             | Vi phạm quyền riêng tư, HIPAA, Nghị định 13 VN nếu gửi nguyên văn bệnh sử + nhân khẩu học qua server ngoài.       | **De-identification Layer / On-premise:** Tích hợp module ẩn danh hóa (xóa Tên, SĐT, ID) trước khi gọi Cloud API, HOẶC ưu tiên deploy các mô hình Open-source (Llama-3, Qwen) on-premise tại server Vinmec. |
+| 2   | Bệnh nhân dùng từ lóng, sai chính tả, hoặc cảm xúc phóng đại | Vector Search bị nhiễu do từ "sắp chết", "xây xẩm" dẫn đến báo động giả (False Positive) ồ ạt hoặc phân sai khoa. | **LLM Entity Extraction:** Dùng LLM bóc tách "Triệu chứng cốt lõi" khỏi lớp vỏ cảm xúc trước, sau đó mới đẩy vào Vector DB so khớp.                                                                         |
+| 3   | Quá tải hàng đợi Thin Human-Triage giờ cao điểm              | Có 100 user cùng kẹt ở luồng duyệt, người bệnh chờ lâu sinh ra ức chế, thoát app.                                 | Thiết lập Queueing SLA. Nếu quá 3 phút không có Điều dưỡng nào nhận ca, tự động bung popup "Chuyển máy gọi Tổng đài viên".                                                                                  |
+| 4   | Prompt Injection / Ép bot kê đơn                             | User bắt bot kê đơn, tư vấn mẹo dân gian hoặc tự chẩn đoán bệnh.                                                  | System Prompt dùng Railguard: Persona là Điều dưỡng phân khoa. Nếu hỏi đơn thuốc, Bot chặn bằng Canned response và nhắc lại Disclaimer miễn trừ trách nhiệm.                                                |
 
 ---
 
 ## 5. ROI 3 kịch bản
 
-|   | Conservative | Realistic | Optimistic |
-|---|-------------|-----------|------------|
-| **Assumption** | 500 khách dùng App Đặt Lịch/ngày, 40% chịu chat với Bot | 1,500 khách/ngày, 65% dùng Bot thành công trơn tru | 3,000 lượt booking/ngày, 85% tỉ lệ quét hoàn toàn bằng Bot |
-| **Cost** | ~$10/ngày (API Inference text-only) | ~$30/ngày | ~$60/ngày |
-| **Benefit** | Giảm bớt 1-2 nhân sự lễ tân trực luồng tiếp đón online | Tự động hóa 60% workload của bộ phận Call Center phân khoa khám | Thay đổi thói quen dùng app. Tiết kiệm OPEX khổng lồ khi mở rộng chuỗi phòng khám. |
-| **Net** | ROI dương ngay lập tức về chi phí tiền lương | Chạy trơn tru, sinh lời chi phí vận hành rõ rệt | Chuyển đổi số lõi thành công. Tăng độ trung thành của khách vì tiện lợi. |
+|                | Conservative                                      | Realistic                                                                      | Optimistic                                                        |
+| -------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| **Assumption** | 500 khách dùng App/ngày, 40% tương tác Bot        | 1,500 khách/ngày, 65% qua luồng Bot                                            | 3,000 khách/ngày, 85% xử lý gọn qua Bot                           |
+| **Cost**       | ~$5/ngày                                          | ~$15/ngày                                                                      | ~$30/ngày                                                         |
+| **Benefit**    | Lọc được các ca rõ ràng, giảm tải cho Call Center | Điều dưỡng Triage tăng x6 năng suất (từ 3 phút nghe gọi xuống 15-30s duyệt/ca) | Số hóa toàn diện. Tiết kiệm quỹ lương khổng lồ cho trực tổng đài. |
+| **Net**        | Trải nghiệm mới lạ, ROI dương nhẹ                 | Giải quyết triệt để nút thắt cổ chai ở khâu tiếp đón                           | Moat dữ liệu bệnh lý người Việt lớn nhất thị trường.              |
 
-**Kill criteria:** Nhận > 5 báo cáo (Ticket) khiếu nại (đánh giá 1 sao) về việc ứng dụng "bắt chat với BOT mất thời gian mà cuối cùng vẫn không ra khoa ưng ý", thể hiện Friction (ma sát) lớn hơn Value (giá trị). Dừng để điều chỉnh luồng UI/UX.
+**Kill criteria:** 1. Tỷ lệ Drop-off > 40% trong 2 tuần liên tiếp. 2. Tỷ lệ bác sĩ/điều dưỡng tại viện báo "Nhầm khoa" > 10% trong 1 tuần. _(Dừng để điều chỉnh UI/UX và fine-tune lại model)._
 
 ---
 
 ## 6. Mini AI spec (1 trang)
 
-### **Tên dự án:** Vinmec AI Triage (Cô điều dưỡng sơ tuyển thông minh)
+### **Tên dự án:** Vinmec AI Triage (Trợ lý Điều dưỡng Sơ yếu Thông minh)
 
 **Vấn đề & Target User:**
-Khi đau ốm, bệnh nhân và người nhà thường băn khoăn "Mình bị đau bụng kiểu này thì rốt cuộc đăng ký khám khoa nào?". Màn hình đặt khám với danh sách thả xuống hàng loạt chuyên khoa (Nội tiêu hóa, Nội tiết, Hô hấp, Gan Mật...) làm họ bị "khớp". Đa số họ sẽ phải Google lung tung, chọn bừa khoa, hoặc gọi lên tổng đài để hỏi. Điều này tạo ra nút thắt cổ chai tắc nghẽn đáng kể ở khâu tiếp đón bệnh nhân từ xa.
+Khi đau ốm, người bệnh băn khoăn không biết chọn chuyên khoa nào. Gọi tổng đài mất thời gian, tự chọn bừa dễ sai gây gián đoạn hành trình. Nút thắt cổ chai của hệ thống y tế bắt đầu ngay từ khâu booking.
 
-**Giải pháp: Trợ lý Sàng lọc Tự Động (Triage Augmentation)**
-Chatbot sẽ xuất hiện ngay giao diện "Đặt lịch bằng mô tả". Bệnh nhân gõ/nói triệu chứng. Chatbot (các LLM phân tích quy trình ngôn ngữ tự nhiên hiểu domain y tế) sẽ mapping logic triệu chứng bệnh nhân với catalog chuyên khoa của bệnh viện. Nó sẽ chủ động hỏi ngược lại 1-2 câu khóa mấu chốt để "chốt hạ" (ví dụ: "Cơn đau bụng của anh/chị là quặn thắt hay râm ran?", "Có ói mửa theo không?").
-Sau cùng, hệ thống trả ra Top 3 chuyên khoa chuẩn nhất và % độ khớp, giúp người dùng an tâm ấn đặt lịch. Nó không hề tước đi quyền lựa chọn cuối cùng của khách hàng.
+**Giải pháp: Triage Augmentation, RAG & Kiến trúc Bảo mật**
+Hệ thống hoạt động qua 4 lớp cốt lõi:
 
-**Quality & Risk:**
-Chỉ số rủi ro quan trọng nhất của hệ thống này là đối phó với **Các tình huống khẩn cấp (Cấp cứu / Red flags)**, tức là phải đảm bảo KPI **Recall 100%**. Để chặn nguy cơ bỏ lọt bệnh nguy kịch (Làm chậm trễ cứu người vì Chatbot cứ vòng vo hỏi han lịch khám), AI được nhúng sẵn list các từ khóa Động. Hễ phát hiện ra chữ "Khá khó thở", "Tức lồng ngực", "Mờ mắt", Chatbot sẽ bỏ qua cơ chế lọc Khoa khám mạn tính, bung ra cảnh báo màu Đỏ rực kèm nút "KẾT NỐI TỔNG ĐÀI CẤP CỨU 115" ngay lập tức. Risk sinh mạng ở ca này là không được phép xảy ra.
+1. **Privacy & Entity Extraction Layer:** Text đầu vào của bệnh nhân đi qua lớp De-identification để bảo mật, sau đó LLM bóc tách thực thể lâm sàng (triệu chứng cốt lõi, tuổi, giới tính), loại bỏ nhiễu cảm xúc dài dòng.
+2. **Semantic Red Flags (An toàn là số 1):** Các thực thể được nhúng (Embedding) và quét qua DB tình trạng khẩn cấp. Nếu phát hiện rủi ro, AI lập tức bung cảnh báo đỏ, hiển thị nút Gọi 115. KPI Recall > 99.5%. Giao diện BẮT BUỘC có dòng Disclaimer: _"Đây là trợ lý gợi ý chuyên khoa, không thay thế chẩn đoán y khoa..."_
+3. **LLM Triage & Routing:** Với ca thông thường, AI map triệu chứng với catalog khoa, chủ động hỏi 1-2 câu để thu hẹp phạm vi.
+4. **Thin Human-Triage (Lớp bọc lót vận hành):** Ca có độ tự tin < 85%, AI đóng gói bệnh án gửi màn hình cho Điều dưỡng trực online. SLAs duyệt là 15-30 giây/ca — đủ để ra quyết định lâm sàng có trách nhiệm, không bị rơi vào tình trạng "bấm bừa". Fallback 3 phút chuyển Gọi Lễ tân.
 
-**Data Flywheel:**
-Cơ chế "Học hỏi vạn dặm" xảy ra tại phòng lâm sàng bằng vòng lặp Humans-in-the-loop: Khi bác sĩ tiếp nhận một bệnh nhân do AI điều hướng nhầm vào khoa mình -> Bác sĩ ấn click điều chuyển khoa trên máy. Hệ thống tự động bắt lại "Bản ghi lời nói gốc của bệnh nhân bữa nọ" và liên kết nó với "Khoa đích đã sửa". Sau 6 tháng, con AI của Vinmec sẽ sở hữu bộ dữ liệu ngôn ngữ dân dã và từ địa phương về miêu tả ốm đau khổng lồ nhất Việt Nam, đập tan rào cản thuật ngữ vùng miền, điều mà không một model AI nhập khẩu nào bắt chước được.
+**Data Flywheel (Giải quyết Cold Start & Tạo Moat):**
+Tránh việc dùng ICD-10 khô cứng làm bệnh nhân khó hiểu, Vector DB giai đoạn "Cold Start" sẽ được nạp bằng **dữ liệu Log Chat/Call Center lịch sử của chính Vinmec (đã ẩn danh)** kết hợp SNOMED CT và ICPC-2 để bám sát ngôn ngữ đời thường.
+Sau đó, hệ thống học liên tục qua: (1) Điều dưỡng sửa khoa trên app, (2) Bác sĩ báo nhầm khoa tại viện. Các bản ghi `(Triệu chứng thô dân gian -> Khoa đích chính xác)` sẽ liên tục cập nhật DB. Chỉ sau 6 tháng, Vinmec sẽ sở hữu "con hào kinh tế" AI am hiểu từ ngữ bệnh trạng của người Việt Nam tốt nhất thị trường.
