@@ -94,4 +94,4 @@ Hệ thống hoạt động qua 4 lớp cốt lõi:
 
 **Data Flywheel (Giải quyết Cold Start & Tạo Moat):**
 Tránh việc dùng ICD-10 khô cứng làm bệnh nhân khó hiểu, Vector DB giai đoạn "Cold Start" sẽ được nạp bằng **dữ liệu Log Chat/Call Center lịch sử của chính Vinmec (đã ẩn danh)** kết hợp SNOMED CT và ICPC-2 để bám sát ngôn ngữ đời thường.
-Sau đó, hệ thống học liên tục qua: (1) Điều dưỡng sửa khoa trên app, (2) Bác sĩ báo nhầm khoa tại viện. Các bản ghi `(Triệu chứng thô dân gian -> Khoa đích chính xác)` sẽ liên tục cập nhật DB. Chỉ sau 6 tháng, Vinmec sẽ sở hữu "con hào kinh tế" AI am hiểu từ ngữ bệnh trạng của người Việt Nam tốt nhất thị trường.
+Sau đó, hệ thống học liên tục qua: (1) Điều dưỡng sửa khoa trên app, (2) Bác sĩ báo nhầm khoa tại viện. Các bản ghi `(Triệu chứng thô dân gian -> Khoa đích chính xác)` sẽ liên tục cập nhật DB. 
