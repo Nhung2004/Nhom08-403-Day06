@@ -1,6 +1,6 @@
 # SPEC — AI Product Hackathon
 
-**Nhóm:** (Điền tên nhóm của bạn)
+**Nhóm:** Nhóm 08
 **Track:** ☐ VinFast · ☑ Vinmec · ☐ VinUni-VinSchool · ☐ XanhSM · ☐ Open
 **Problem statement (1 câu):** Bệnh nhân khi có triệu chứng đau ốm thường lúng túng không biết phải khám ở chuyên khoa nào, dẫn đến việc đặt nhầm khoa hoặc phải gọi điện hỏi tổng đài gây tốn thời gian chờ đợi; AI sẽ đóng vai trò "điều dưỡng sơ yếu", trao đổi ngắn gọn để phân tích triệu chứng và tự động gợi ý đúng chuyên khoa, rút ngắn luồng booking (đặt lịch).
 
